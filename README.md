@@ -27,8 +27,7 @@ https://www.kaggle.com/datasets/serkantysz/490k-spotify-song-audio-embeddings-an
 $ head -n 5000000 ../Dataset/songs.csv | awk -F, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14}' | tr ' ' '\n' | awk '{printf "%f ", $1}' > dados.bin
 ```
 1. opção A  Coloque o dados.bin em cada uma das pastas
-2. opção B  Coloque o dados.bin na pasta do Dataset (alterar o caminho dos códigos)
-3. opção C  Coloque o dados.bin em um pasta e altere o caminho dos código para a pasta desejada
+2. opção C  Coloque o dados.bin em um pasta e altere o caminho dos código para a pasta desejada 
 
 ## 👥 Integrantes do Grupo
 
