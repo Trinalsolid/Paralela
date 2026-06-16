@@ -1,0 +1,49 @@
+========================================================================
+             README - PROJETO K-MEANS PARALELO COM OPENMP
+========================================================================
+
+1. EXPLICAÇÃO DA APLICAÇÃO:
+Esta aplicação consiste na paralelização do algoritmo de clusterização 
+K-Means utilizando OpenMP para arquiteturas multicore (CPU). 
+
+O foco do processamento mudou do plano original bidimensional (2D) para 
+um espaço multidimensional, preparado para consumir os vetores de áudio 
+embeddings do dataset do Spotify (490k músicas do Kaggle). O cálculo da 
+distância Euclidiana e a atualização de centroides foram adaptados para 
+N-Dimensões, maximizando o uso de paralelismo de dados e loops concorrentes.
+
+2. REQUISITOS DE SISTEMA:
+- Compilador GCC moderno com suporte a OpenMP (libgomp).
+- Arquivo do dataset "spotify_embeddings.csv" localizado no mesmo 
+  diretório do executável.
+
+3. COMO COMPILAR:
+Abra o terminal e execute o comando abaixo para gerar o arquivo binário dos
+dados numéricos do csv do dataset que estamos utilizando com 5.000.000 de 
+registros
+
+    $ head -n 5000000 ../Dataset/songs.csv | awk -F, '{print $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14}' | tr ' ' '\n' | awk '{printf "%f ", $1}' > dados.bin
+
+Abra o terminal na pasta do arquivo e execute o comando abaixo habilitando
+a flag do OpenMP (-fopenmp) e otimização básica:
+
+    gcc -O2 -fopenmp k_means_openmp.c -o k_means_openmp -lm
+
+4. COMO EXECUTAR:
+Você pode controlar diretamente o número de threads que deseja testar
+configurando a variável de ambiente 'OMP_NUM_THREADS' antes da execução.
+
+Exemplos de execução:
+
+Para rodar de forma Sequencial (1 Thread):
+    export OMP_NUM_THREADS=1
+    ./k_means_openmp
+
+Para rodar com 4 Threads:
+    export OMP_NUM_THREADS=4
+    ./k_means_openmp
+
+Para rodar com 32 Threads:
+    export OMP_NUM_THREADS=32
+    ./k_means_openmp
+========================================================================
