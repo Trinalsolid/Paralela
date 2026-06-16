@@ -1,0 +1,41 @@
+========================================================================
+               README - PROJETO K-MEANS PARALELO COM CUDA
+========================================================================
+
+1. EXPLICAÇÃO DA APLICAÇÃO:
+Esta aplicação consiste na portabilidade e aceleração do algoritmo de 
+clusterização K-Means para Unidades de Processamento Gráfico (GPU) de forma
+nativa, utilizando a API NVIDIA CUDA.
+
+O foco mudou do modelo OpenMP Target Offloading para o modelo de execução 
+baseado em Kernels assíncronos e Grids/Blocos de Threads em CUDA. O cálculo 
+das distâncias Euclidianas de 12 dimensões e a atualização dos centroides foram 
+divididos em 5 Kernels especializados de execução em massa. A sincronização e 
+a acumulação concorrente de dados na VRAM foram otimizadas por meio da instrução 
+nativa de hardware 'atomicAdd' para tipos 'double', aproveitando ao máximo a 
+arquitetura de execução paralela do dispositivo.
+
+2. REQUISITOS DE SISTEMA:
+- Compilador de drivers oficiais da NVIDIA (NVCC - CUDA Toolkit).
+- Placa de vídeo dedicada NVIDIA compatível com arquitetura CUDA (ex: RTX 4060TI).
+- Arquivo de dados bruto "dados.bin" contendo os registros numéricos já
+  extraídos previamente do dataset do Spotify.
+
+3. COMO COMPILAR:
+Abra o terminal na pasta do arquivo e execute o comando do compilador oficial 
+da NVIDIA (nvcc), aplicando a flag de otimização máxima de registradores (-O3):
+
+    nvcc -O3 k_means_cuda.cu -o k_means_cuda -lm
+
+4. COMO EXECUTAR:
+Como o processamento é totalmente gerenciado em nível de hardware por meio de 
+grades de blocos de threads (Blocks/Grid) pré-calculadas na GPU, o controle 
+de execução não depende de variáveis de ambiente do Host.
+
+Para rodar a versão de performance nativa em CUDA:
+    ./k_means_cuda
+
+Nota: Certifique-se de que o arquivo "dados.bin" gerado com a massa de dados 
+do teste está localizado no mesmo diretório do executável final para garantir 
+a leitura correta.
+========================================================================
