@@ -1,5 +1,5 @@
 # Paralela
-Trabalho de Computação Paralela com OpemMP, OpemMP para GPU, e CUDA para GPU
+Trabalho de Computação Paralela com OpenMP, OpenMP para GPU, e CUDA para GPU
 
 ## Estrutura
 ```
