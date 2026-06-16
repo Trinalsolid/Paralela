@@ -13,10 +13,10 @@ Trabalho de Computação Paralela com OpenMP, OpenMP para GPU, e CUDA para GPU
 │   ├── dados.bin            # Arquivo binário do dataset
 │   ├── k_means_openmp.c     # Código openmp para GPU
 │   └── k-means.txt          # Explicação de como executar o OpemMP para GPU ou emular a GPU na CPU
-├── CUDA para GPU/     # Pasta de arquivo
-│   ├── dados.bin            # Arquivo binário do dataset
-│   ├── k_means_cuda.cu       # Código CUDA para GPU
-│   └── k-means.txt          # Explicação de como executar o OpemMP para GPU ou emular a GPU na CPU
+└── CUDA para GPU/     # Pasta de arquivo
+    ├── dados.bin            # Arquivo binário do dataset
+    ├── k_means_cuda.cu       # Código CUDA para GPU
+    └── k-means.txt          # Explicação de como executar o OpemMP para GPU ou emular a GPU na CPU
 ```
 ## Dataset utilizado
 ```
@@ -29,3 +29,8 @@ $ head -n 5000000 ../Dataset/songs.csv | awk -F, '{print $3,$4,$5,$6,$7,$8,$9,$1
 1. opção A  Coloque o dados.bin em cada uma das pastas
 2. opção B  Coloque o dados.bin em um pasta e altere o caminho dos código para a pasta desejada
 
+## 👥 Integrantes do Grupo
+
+  - [Juan Pablo Ramos de Oliveira]
+  - [Luiz Gabriel Milione Assis]
+  - [Luís Fernando Rdorigues Braga]
