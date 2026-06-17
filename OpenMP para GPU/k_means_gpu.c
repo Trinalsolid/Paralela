@@ -8,6 +8,15 @@
  * - OpenMP GPU Offloading:            20.9390 segundos
  * =========================================================================
  */
+// ===================================================
+// Rodando na MX110 2 Gb
+// Lendo dados purificados de dados.bin...
+// 5000000 registros carregados com sucesso.
+// Iniciando K-Means na GPU via OpenMP Target Offloading...
+
+// Tempo de Execucao do K-Means na GPU: 12.9714 segundos
+// free(): invalid size
+// Abortado (imagem do núcleo gravada)
 
 #include <float.h>
 #include <math.h>
@@ -153,17 +162,7 @@ int main()
     }
 
     size_t count = 0;
-    while (count < MAX_RECORDS) {
-        dataset[count].group = -1;
-        int lidos = 0;
-        for(int d = 0; d < DIM; d++) {
-            if (fscanf(fp, "%lf", &dataset[count].features[d]) == 1) {
-                lidos++;
-            }
-        }
-        if (lidos < DIM) break;
-        count++;
-    }
+    count = fread(dataset, sizeof(observation), MAX_RECORDS, fp);
     fclose(fp);
 
     printf("%zu registros carregados com sucesso.\n", count);

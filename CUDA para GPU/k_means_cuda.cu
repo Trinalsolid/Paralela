@@ -6,6 +6,31 @@
  * =========================================================================
  */
 
+// Lendo dados purificados de dados.bin...
+// 10000000 registros carregados com sucesso.
+// Iniciando K-Means na GPU nativa via CUDA...
+
+// Tempo de Execucao do K-Means em CUDA: 0.7552 segundos
+
+// Lendo dados purificados de dados.bin...
+// 15000000 registros carregados com sucesso.
+// Iniciando K-Means na GPU nativa via CUDA...
+
+// Tempo de Execucao do K-Means em CUDA: 1.1240 segundos
+
+// Lendo dados purificados de dados.bin...
+// 17000000 registros carregados com sucesso.
+// Iniciando K-Means na GPU nativa via CUDA...
+
+// Tempo de Execucao do K-Means em CUDA: 1.2420 segundos
+
+
+//  Lendo dados purificados de dados.bin...
+// 19000000 registros carregados com sucesso.
+// Iniciando K-Means na GPU nativa via CUDA...
+
+// Tempo de Execucao do K-Means em CUDA: 1.4098 segundos
+
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -15,7 +40,7 @@
 #include <cuda_runtime.h>
 
 #define DIM 12  
-#define MAX_RECORDS 5000000 
+#define MAX_RECORDS 19000000 
 
 // Estruturas de dados idênticas às anteriores, ideais para cópia direta via cudaMemcpy
 typedef struct observation
@@ -91,7 +116,30 @@ __global__ void kernelResetClusters(cluster* clusters, int k)
     }
 }
 
-// Acumulação paralela dos dados usando atomicAdd nativo para double em hardware
+// Criamos uma função com nome exclusivo para evitar conflitos com a biblioteca padrão
+__device__ double myAtomicAdd(double* address, double val)
+{
+#if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ < 600
+    // Lógica via software para placas Maxwell (MX110) ou mais antigas
+    unsigned long long int* address_as_ull = (unsigned long long int*)address;
+    unsigned long long int old = *address_as_ull, assumed;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_ull, assumed,
+                        __double_as_longlong(val + __longlong_as_double(assumed)));
+    } while (assumed != old);
+
+    return __longlong_as_double(old);
+#else
+    // Se no futuro você compilar em uma arquitetura Pascal+ (Compute >= 6.0), 
+    // ele ignora a lógica acima e delega direto para o hardware nativo.
+    return atomicAdd(address, val);
+#endif
+}
+
+
+// Seu kernel atualizado chamando a nova função
 __global__ void kernelAccumulateClusters(const observation* observations, size_t size, cluster* clusters)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -100,10 +148,11 @@ __global__ void kernelAccumulateClusters(const observation* observations, size_t
         int g = observations[idx].group;
         for (int d = 0; d < DIM; d++)
         {
-            // atomicAdd para double é suportado nativamente a partir de arquiteturas Pascal+ (RTX 4060Ti inclusa)
-            atomicAdd(&(clusters[g].centroid[d]), observations[idx].features[d]);
+            // Usamos a nossa função customizada (à prova de conflitos) para o double
+            myAtomicAdd(&(clusters[g].centroid[d]), observations[idx].features[d]);
         }
-        // Como count é size_t (unsigned long long), usamos casting para casar com a assinatura atômica do CUDA
+        
+        // Mantemos o atomicAdd nativo para o unsigned long long, pois isso é suportado pela MX110
         atomicAdd((unsigned long long*)&(clusters[g].count), 1ULL);
     }
 }
@@ -208,14 +257,16 @@ void kMeansCUDA(observation h_observations[], size_t size, cluster h_clusters[],
 
 int main()
 {
+    // 1. CORREÇÃO DE CAST: Exigência do compilador C++ (nvcc)
     observation* dataset = (observation*)malloc(sizeof(observation) * MAX_RECORDS);
+    
     if (!dataset) {
         printf("Erro ao alocar memoria para o dataset na CPU.\n");
         return 1;
     }
 
     printf("Lendo dados purificados de dados.bin...\n");
-    FILE* fp = fopen("dados.bin", "r");
+    FILE* fp = fopen("dados.bin", "r"); // Se for binário, mude "r" para "rb"
     if (!fp) {
         perror("Erro ao abrir dados.bin");
         free(dataset);
@@ -223,18 +274,15 @@ int main()
     }
 
     size_t count = 0;
-    while (count < MAX_RECORDS) {
-        dataset[count].group = -1;
-        int lidos = 0;
-        for(int d = 0; d < DIM; d++) {
-            if (fscanf(fp, "%lf", &dataset[count].features[d]) == 1) {
-                lidos++;
-            }
-        }
-        if (lidos < DIM) break;
-        count++;
-    }
+    
+    count = fread(dataset, sizeof(observation), MAX_RECORDS, fp);
     fclose(fp);
+
+    if (count == 0) {
+        printf("Nenhum registro foi lido! Verifique se o arquivo está na pasta certa e se não é um formato binário.\n");
+        free(dataset);
+        return 1;
+    }
 
     printf("%zu registros carregados com sucesso.\n", count);
 
