@@ -68,7 +68,7 @@ __device__ int calculateNearstCUDA(const observation* o, const cluster clusters[
     return index;
 }
 
-// Kernel 1: Inicialização paralela dos grupos baseada no índice global da thread
+// Inicialização paralela dos grupos baseada no índice global da thread
 __global__ void kernelInitGroups(observation* observations, size_t size, int k)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -78,7 +78,7 @@ __global__ void kernelInitGroups(observation* observations, size_t size, int k)
     }
 }
 
-// Kernel 2: Reseta os acumuladores dos centroides na GPU
+// Reseta os acumuladores dos centroides na GPU
 __global__ void kernelResetClusters(cluster* clusters, int k)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -91,7 +91,7 @@ __global__ void kernelResetClusters(cluster* clusters, int k)
     }
 }
 
-// Kernel 3: Acumulação paralela dos dados usando atomicAdd nativo para double em hardware
+// Acumulação paralela dos dados usando atomicAdd nativo para double em hardware
 __global__ void kernelAccumulateClusters(const observation* observations, size_t size, cluster* clusters)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -108,7 +108,7 @@ __global__ void kernelAccumulateClusters(const observation* observations, size_t
     }
 }
 
-// Kernel 4: Calcula a média aritmética final de cada dimensão dos clusters
+// Calcula a média aritmética final de cada dimensão dos clusters
 __global__ void kernelComputeAverages(cluster* clusters, int k)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -125,7 +125,7 @@ __global__ void kernelComputeAverages(cluster* clusters, int k)
     }
 }
 
-// Kernel 5: Atualiza os clusters mais próximos e faz a contagem de mudanças por bloco (redução parcial)
+// Atualiza os clusters mais próximos e faz a contagem de mudanças por bloco (redução parcial)
 __global__ void kernelUpdateGroups(observation* observations, size_t size, const cluster* clusters, int k, size_t* d_changed)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -196,7 +196,7 @@ void kMeansCUDA(observation h_observations[], size_t size, cluster h_clusters[],
 
     } while (h_changed > minAcceptedError);
 
-    // Copia os resultados finais purificados de volta para a RAM da CPU
+    // Copia os resultados de volta para a RAM da CPU
     CHECK_CUDA_ERROR(cudaMemcpy(h_observations, d_observations, sizeof(observation) * size, cudaMemcpyDeviceToHost));
     CHECK_CUDA_ERROR(cudaMemcpy(h_clusters, d_clusters, sizeof(cluster) * k, cudaMemcpyDeviceToHost));
 
@@ -243,7 +243,7 @@ int main()
 
     printf("Iniciando K-Means na GPU nativa via CUDA...\n");
     
-    // Medição de tempo de alta precisão nativa usando eventos CUDA
+    // Medição de tempo nativa usando eventos CUDA
     cudaEvent_t start, stop;
     CHECK_CUDA_ERROR(cudaEventCreate(&start));
     CHECK_CUDA_ERROR(cudaEventCreate(&stop));
