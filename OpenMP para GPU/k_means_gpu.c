@@ -20,8 +20,6 @@
 #define DIM 12  
 #define MAX_RECORDS 5000000 
 
-// Declaração de structs simplificadas sem ponteiros internos, 
-// o que é um requisito crítico para que a cópia de memória para a GPU funcione perfeitamente.
 typedef struct observation
 {
     double features[DIM]; // Convertido para array fixo para mapeamento direto na GPU
@@ -34,7 +32,7 @@ typedef struct cluster
     size_t count; 
 } cluster;
 
-// Funções inline declaradas como 'declare target' para que possam ser executadas dentro dos núcleos da GPU
+// Funções inline declaradas para que possam ser executadas dentro dos núcleos da GPU
 #pragma omp declare target
 double calculateDistanceGPU(const observation* o, const cluster* c)
 {
@@ -74,8 +72,7 @@ void kMeansGPU(observation observations[], size_t size, cluster clusters[], int 
         #pragma omp target teams distribute parallel for schedule(static)
         for (size_t j = 0; j < size; j++)
         {
-            // Nota: rand() em GPU não é suportado de forma idêntica à CPU.
-            // Usamos uma operação matemática baseada no índice para gerar grupos iniciais pseudo-aleatórios na GPU.
+            //  uma operação matemática baseada no índice para gerar grupos iniciais pseudo-aleatórios na GPU.
             observations[j].group = (j * 11) % k;
         }
 
@@ -140,7 +137,7 @@ void kMeansGPU(observation observations[], size_t size, cluster clusters[], int 
 
 int main()
 {
-    // Alocação contígua na CPU usando arrays planos
+    // Alocação contígua na CPU usando arrays 
     observation* dataset = malloc(sizeof(observation) * MAX_RECORDS);
     if (!dataset) {
         printf("Erro ao alocar memoria para o dataset.\n");
