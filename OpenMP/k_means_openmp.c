@@ -71,7 +71,7 @@ cluster* kMeans(observation observations[], size_t size, int k)
         clusters[i].centroid = calloc(DIM, sizeof(double));
     }
 
-    /* [COMENTÁRIO PARALELIZACAO] Inicialização paralela dos grupos */
+    /* Inicialização paralela dos grupos */
     #pragma omp parallel for schedule(static)
     for (size_t j = 0; j < size; j++)
     {
