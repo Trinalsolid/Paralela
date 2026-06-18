@@ -34,3 +34,13 @@ $ head -n 5000000 ../Dataset/songs.csv | awk -F, '{print $3,$4,$5,$6,$7,$8,$9,$1
   - [Juan Pablo Ramos de Oliveira]
   - [Luiz Gabriel Milione Assis]
   - [Luís Fernando Rdorigues Braga]
+
+### Resultados no PARCODE 
+os resultados obtidos enquanto executavamos no PARCODE foram:
+===================================== TEMPO DE EXECUÇÃO NO PARCODE =================================================
+
+Tempo de Execução do K-Means: 		    11.2578 segundos - 32 Threads	- para 5 Milhões de campos no dados.bin
+Tempo de Execução do K-Means na GPU: 	11.0165 segundos -		        - para 5 Milhões de campos no dados.bin
+Tempo de Execução do K-Means em CUDA: 	4.6442 	segundos -		        - para 5 Milhões de campos no dados.bin
+
+====================================================================================================================
